@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Ignorar el entorno virtual llamado expotech_2025
+expotech_2025/
+
+
 # Distribution / packaging
 .Python
 build/
