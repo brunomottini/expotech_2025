@@ -111,6 +111,7 @@ prompt_expotech = ChatPromptTemplate.from_messages(
                 - **Agent**: "The main speakers will present on various topics including AI, fintech, and innovation. Would you like the full schedule?"
 
                 Always keep the conversation focused on helping the user with tasks related to Expotech Panama 2025, leveraging your knowledge base effectively.
+                Always respond in the same languaje as the user. 
                 """,
             )
         ),
@@ -124,7 +125,7 @@ prompt_expotech = ChatPromptTemplate.from_messages(
 
 
 # MEMORIA
-memorias_usuarios = CircularDict(max_size=2)
+memorias_usuarios = CircularDict(max_size=4)
 
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
