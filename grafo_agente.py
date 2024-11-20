@@ -20,12 +20,19 @@ from typing import Literal, Annotated
 from typing_extensions import TypedDict
 from langgraph.graph.message import add_messages
 
+import openai
+import os
+from dotenv import load_dotenv, find_dotenv
+
+
 # Resto
 from langchain.tools.retriever import create_retriever_tool
 from chromadb_store import genereate_chroma_retriever
 
-OPENAI_API_KEY = "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"
-
+# OPENAI_API_KEY = "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"
+# Varibles de ambiente
+_ = load_dotenv(find_dotenv())
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 #######################                    TOOLS                     ##############################
 persist_directory = "./chroma_docs/expotech_2025/"
@@ -44,9 +51,7 @@ tools = [retriever_tool]
 
 ######################                      LLMs                    ##################################
 lm_general = "gpt-4o-mini"
-llm_with_tools = ChatOpenAI(
-    temperature=0, model_name=lm_general, openai_api_key=OPENAI_API_KEY
-).bind_tools(tools)
+llm_with_tools = ChatOpenAI(temperature=0, model_name=lm_general).bind_tools(tools)
 
 
 ######################                      Memory                  ###################################
