@@ -9,6 +9,9 @@ __pycache__/
 # Ignorar el entorno virtual llamado expotech_2025
 expotech_2025/
 
+#credentials
+token.json
+credentials.json
 
 # Distribution / packaging
 .Python

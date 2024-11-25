@@ -48,23 +48,6 @@ def chat():
     msg = request.form["msg"]
     input = msg
 
-    # FECHAS
-    fecha_actual = datetime.now().strftime("%d/%m/%Y")
-    fecha_actual_texto = datetime.now().strftime("%A, %B %d, %Y")
-
-    # # AGENTE AI
-    # agente = create_agent()
-    # answer = agente.invoke(
-    #     {
-    #         "input": input,
-    #         "fecha_actual": fecha_actual,
-    #         "fecha_actual_texto": fecha_actual_texto,
-    #     },
-    #     config={"configurable": {"session_id": session_id}},
-    # )
-    # respuesta_markdown = answer["output"]
-    # respuesta_texto = markdown2.markdown(respuesta_markdown)
-
     # GRAFO AGENTE
     config = {"configurable": {"thread_id": session_id}}
     grafo = create_graph()
@@ -79,7 +62,27 @@ def chat():
     last_answer = answer["messages"][-1].content
     respuesta_texto = markdown2.markdown(last_answer)
 
-    return [respuesta_texto, None]
+    # Logica fotos respuesta
+    empresas = ["visnai_logo.png"]
+
+    return [respuesta_texto, empresas]
+
+    # # AGENTE AI
+    # # Fecha
+    # fecha_actual = datetime.now().strftime("%d/%m/%Y")
+    # fecha_actual_texto = datetime.now().strftime("%A, %B %d, %Y")
+
+    # agente = create_agent()
+    # answer = agente.invoke(
+    #     {
+    #         "input": input,
+    #         "fecha_actual": fecha_actual,
+    #         "fecha_actual_texto": fecha_actual_texto,
+    #     },
+    #     config={"configurable": {"session_id": session_id}},
+    # )
+    # respuesta_markdown = answer["output"]
+    # respuesta_texto = markdown2.markdown(respuesta_markdown)
 
 
 if __name__ == "__main__":

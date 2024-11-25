@@ -97,7 +97,7 @@
 					$("#waitingMessage").hide();
 					var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg text-white"><img src="/static/expotech2.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer text-white">' + data[0] + '<span class="msg_time">' + str_time + '</span></div></div>';
 
-					// AQUI CAMBIE EL CODIGO
+					// 				FOTOS
 					//
 					if (data[1] != 0 && data[1] != null) {
 						botHtml += '<div class="image-container">';
@@ -105,7 +105,7 @@
 						for (let i = 0; i < data[1].length; i++) {
 							let filename = data[1][i];
 							botHtml += '<div class="image-box">';
-							botHtml += '<img src="/static/' + filename + '" class="bot_image" alt="Bot Image">';
+							botHtml += '<img src="/static/empresas/' + filename + '" class="bot_image" alt="Bot Image">';
 							botHtml += '<span class="image_filename">' + formatFilename(filename) + '</span>';
 							botHtml += '</div>'; // Closing tag for image-box
 						}
