@@ -33,7 +33,8 @@ from dotenv import load_dotenv, find_dotenv
 from langchain.tools.retriever import create_retriever_tool
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain.tools.render import format_tool_to_openai_function
+
+# from langchain.tools.render import format_tool_to_openai_function
 from ast import literal_eval
 
 import pyodbc
@@ -42,11 +43,13 @@ import pyodbc
 from chromadb_store import genereate_chroma_retriever
 from azure_database import connect_db
 from send_mail import enviar_mail_confirmacion
-from langchain_google_community import GmailToolkit
-from langchain_google_community.gmail.utils import (
-    build_resource_service,
-    get_gmail_credentials,
-)
+from azure_ai_search import create_azure_ai_search_vs
+
+# from langchain_google_community import GmailToolkit
+# from langchain_google_community.gmail.utils import (
+#     build_resource_service,
+#     get_gmail_credentials,
+# )
 
 
 # Varibles de ambiente
@@ -65,15 +68,48 @@ class expo_state(TypedDict):
 
 #######################                    TOOLS                     ##############################
 
-# - - - - - - - - - - - - - - - - Gmail - - - - - - - - -
-credentials = get_gmail_credentials(
-    token_file="token.json",
-    scopes=["https://mail.google.com/"],
-    client_secrets_file="credentials.json",
-)
-api_resource = build_resource_service(credentials=credentials)
-toolkit = GmailToolkit(api_resource=api_resource)
-gmail_tools_ = toolkit.get_tools()
+# Azure ai search tool
+
+
+@tool("azure_search_retriever", return_direct=True)
+def retriever_azure_search(query: str, k: int = 4, score_threshold: float = 0.8):
+    """
+    Search for information specifically about Expotech Panama 2025. For any questions related to the event, exhibitors, schedules, speakers, venues, or any details about Expotech Panama 2025, you must use this tool.
+    """
+    try:
+        # Instancia de la base de datos vectorial
+        index_name = "expotech25_v1"
+        vector_store = create_azure_ai_search_vs(index_name)
+
+        # Realizar la búsqueda de similitud con relevancia
+        docs_and_scores = vector_store.similarity_search_with_relevance_scores(
+            query=query,
+            k=k,
+            score_threshold=score_threshold,
+        )
+
+        # Validar si se encontraron documentos
+        if not docs_and_scores:
+            return {
+                "error": "No se encontraron documentos relevantes para la consulta proporcionada."
+            }
+
+        # Formatear la respuesta con documentos y metadatos
+        result = []
+        for doc, score in docs_and_scores:
+            result.append(
+                {
+                    "content": doc.page_content,
+                    "metadata": doc.metadata,
+                    "relevance_score": score,
+                }
+            )
+
+        return {"query": query, "results": result}
+
+    except Exception as e:
+        # Manejo de errores
+        return {"error": f"Ocurrió un error al realizar la búsqueda: {str(e)}"}
 
 
 # ----------------------- TREIEVER  - - - - - - - - - - - -
@@ -169,6 +205,7 @@ def contacto_personal(
 
 # tools = [retriever_tool, contacto_personal, gmail_tools]
 tools = [retriever_tool, contacto_personal]
+tools = [retriever_azure_search, contacto_personal]
 # tools = [gmail_tools]
 
 ######################                      AGENTE PRINCIPAL                    ##################################
