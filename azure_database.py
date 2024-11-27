@@ -1,10 +1,15 @@
 import pyodbc
+import os
+from dotenv import load_dotenv
 
-SERVER = "visnaidatabase.database.windows.net"
-DATABASE = "visnaidemodatabase"
-USERNAME = "visnaidatabase"
-PASSWORD = "Visnai2024"
+load_dotenv()
 
+
+# Settings
+SERVER = os.environ.get("SERVER")
+DATABASE = os.environ.get("DATABASE")
+USERNAME = os.environ.get("USERNAME")
+PASSWORD = os.environ.get("PASSWORD")
 
 # Conexion
 connectionString = f"Driver={{ODBC Driver 17 for SQL Server}};SERVER={SERVER},1433;DATABASE={DATABASE};UID={USERNAME};PWD={PASSWORD}"
