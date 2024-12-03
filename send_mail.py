@@ -18,7 +18,7 @@ def enviar_mail_confirmacion(
 
     sender_email = "bruno@dsinergia.com"
     sender_password = "zpcl xoii tiyt lwyj"
-    logo_path = os.path.join(os.getcwd(), "static", "empresas", "visnai_logo.png")
+    logo_path = os.path.join(os.getcwd(), "static", "empresas", "visnai_logo_mail.png")
     subject = "Confirmacion de contacto"
     body = "Este es un mensaje de conformacion!. En breve una persona se contactara para darte mas informacion!!!"
 
@@ -46,12 +46,12 @@ def enviar_mail_confirmacion(
     # Adjuntar el logo como imagen
     try:
         with open(logo_path, "rb") as logo_file:
-            mime_logo = MIMEBase("image", "png", filename="visnai_logo.png")
+            mime_logo = MIMEBase("image", "png", filename="visnai_logo_mail.png")
             mime_logo.set_payload(logo_file.read())
             encoders.encode_base64(mime_logo)
             mime_logo.add_header("Content-ID", "<logo>")
             mime_logo.add_header(
-                "Content-Disposition", "inline", filename="visnai_logo.png"
+                "Content-Disposition", "inline", filename="visnai_logo_mail.png"
             )
             message.attach(mime_logo)
     except Exception as e:

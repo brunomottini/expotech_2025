@@ -6,10 +6,10 @@ load_dotenv()
 
 
 # Settings
-SERVER = os.environ.get("SERVER")
-DATABASE = os.environ.get("DATABASE")
-USERNAME = os.environ.get("USERNAME")
-PASSWORD = os.environ.get("PASSWORD")
+SERVER = os.environ.get("SQL_SERVER")
+DATABASE = os.environ.get("SQL_DATABASE")
+USERNAME = os.environ.get("SQL_USERNAME")
+PASSWORD = os.environ.get("SQL_PASSWORD")
 
 # Conexion
 connectionString = f"Driver={{ODBC Driver 17 for SQL Server}};SERVER={SERVER},1433;DATABASE={DATABASE};UID={USERNAME};PWD={PASSWORD}"

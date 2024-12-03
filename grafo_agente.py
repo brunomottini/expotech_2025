@@ -1,49 +1,39 @@
-# Notebooks Inicial
+# Importaciones de Librerías Estándar
+from datetime import datetime, timedelta
+from ast import literal_eval
+from typing import Annotated
+from typing_extensions import TypedDict
+import os
+import openai
+
+# Importaciones de Librerías de Terceros
+from dotenv import load_dotenv, find_dotenv
+import pyodbc
+
+# Importaciones de Paquetes de LangChain
 from langchain_openai import ChatOpenAI
 from langchain.tools import tool
-
-# from langgraph.graph import MessagesState
-# from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-
-from langgraph.graph import START, StateGraph, END
-from langgraph.prebuilt import tools_condition, ToolNode
-from langchain_core.messages import SystemMessage
-
-# from langgraph.prebuilt import create_react_agent
-
-# from langgraph.prebuilt import create_react_agent
-
-# from IPython.display import Image, display
-
-from langgraph.checkpoint.memory import MemorySaver
-
-
-from datetime import datetime, timedelta
-
-from typing import Literal, Annotated
-from typing_extensions import TypedDict
-from langgraph.graph.message import add_messages
-
-import openai
-import os
-from dotenv import load_dotenv, find_dotenv
-
-
-# Resto
 from langchain.tools.retriever import create_retriever_tool
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-# from langchain.tools.render import format_tool_to_openai_function
-from ast import literal_eval
+from langgraph.graph import START, StateGraph, END
+from langgraph.prebuilt import tools_condition, ToolNode
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph.message import add_messages
 
-import pyodbc
 
-# Scripts internos
+# Importaciones de Scripts Internos
 from chromadb_store import genereate_chroma_retriever
 from azure_database import connect_db
 from send_mail import enviar_mail_confirmacion
 from azure_ai_search import create_azure_ai_search_vs
+
+# Comentadas (Pendientes de Revisión o Eliminación)
+# from langgraph.graph import MessagesState
+# from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+# from langchain.tools.render import format_tool_to_openai_function
+
 
 # from langchain_google_community import GmailToolkit
 # from langchain_google_community.gmail.utils import (
@@ -68,10 +58,11 @@ class expo_state(TypedDict):
 
 #######################                    TOOLS                     ##############################
 
-# Azure ai search tool
+
+#  -    -   -   -   -   -   -   -    AZURE AI SEARCH    -   -   -   -   -   -   -   -   -   -   -
 
 
-@tool("azure_search_retriever", return_direct=True)
+@tool("retriever_azure_search", return_direct=True)
 def retriever_azure_search(query: str, k: int = 4, score_threshold: float = 0.8):
     """
     Search for information specifically about Expotech Panama 2025. For any questions related to the event, exhibitors, schedules, speakers, venues, or any details about Expotech Panama 2025, you must use this tool.
@@ -112,7 +103,7 @@ def retriever_azure_search(query: str, k: int = 4, score_threshold: float = 0.8)
         return {"error": f"Ocurrió un error al realizar la búsqueda: {str(e)}"}
 
 
-# ----------------------- TREIEVER  - - - - - - - - - - - -
+#   -   -   -   -   -   -   -   -    CHROMA DB RETRIEVER    -   -   -   -   -   -   -   -   -   -
 
 
 persist_directory = "./chroma_docs/expotech_2025/"
@@ -127,6 +118,12 @@ retriever_tool = create_retriever_tool(
 )
 
 
+#
+#
+#
+#
+#
+#   -   -   -   -   -   -   -   -   CONTACTO PERSONA SQL + MAIL     -   -   -   -   -   -   -   -   -
 @tool
 def contacto_personal(
     nombre_contacto: str,
@@ -182,12 +179,12 @@ def contacto_personal(
 
         # Confirmar transacción
         conn.commit()
-        # #enviar_mail_confirmacion(mail_contacto)
-        # return (
-        #     f"The user {nombre_contacto} has been successfully scheduled to be contacted "
-        #     f"at the email {mail_contacto} or the phone number {numero_contacto} "
-        #     f"for the following reason: {motivo_contacto}"
-        # )
+        enviar_mail_confirmacion(mail_contacto)
+        return (
+            f"The user {nombre_contacto} has been successfully scheduled to be contacted "
+            f"at the email {mail_contacto} or the phone number {numero_contacto} "
+            f"for the following reason: {motivo_contacto}"
+        )
 
     except pyodbc.Error as e:
         # Revertir transacción en caso de error
@@ -203,42 +200,37 @@ def contacto_personal(
         conn.close()
 
 
-# tools = [retriever_tool, contacto_personal, gmail_tools]
 tools = [retriever_tool, contacto_personal]
-tools = [retriever_azure_search, contacto_personal]
-# tools = [gmail_tools]
+# tools = [retriever_azure_search, contacto_personal]
 
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
 ######################                      AGENTE PRINCIPAL                    ##################################
 
-# sys_msg = """You are a highly capable AI assistant designed to assist with all inquiries related to the Expotech Panama 2025 event. Your primary objective is to provide accurate, relevant, and timely responses to both participating companies and attendees.
-
-
-#                 ### Handling Out-of-Scope Requests:
-#                 - If the user asks about something unrelated to Expotech Panama 2025, respond politely and inform them that your purpose is to assist exclusively with the expo. For example:
-#                 - "I'm here to assist with any questions related to Expotech Panama 2025. How can I help you with that?"
-
-#                 ### Examples:
-#                 2. **User**: "Quiero registrarme para el evento."
-#                 - **Agent**: "¡Claro! Permíteme guiarte en el proceso de inscripción para Expotech Panama 2025."
-#                 3. **User**: "What's the agenda for the main speakers?"
-#                 - **Agent**: "The main speakers will present on various topics including AI, fintech, and innovation. Would you like the full schedule?"
-
-#                 Always keep the conversation focused on helping the user with tasks related to Expotech Panama 2025, leveraging your knowledge base effectively.
-#                 Always respond in the same languaje as the user.
-#                 """
-
+#   -   -   -   -   -   -   -   -   -   - SYSTEM PROMPT -   -   -   -   -   -   -   -   -   -   -
 sys_msg = """
-                You are a highly capable AI assistant designed to assist with all inquiries related to Expotech Panama 2025. Your primary objective is to provide accurate, relevant, and timely responses to both participating companies and attendees. Additionally, you are equipped with tools to escalate user queries when needed, ensuring seamless user support.
+                You are ExpoVisn, a chatbot created by Dsinergia Corp., also known as Dsinergia, to assist with ExpoTech 2025 in Panama City, Panamá.
+                Your primary purpose is to provide information about the expo, including details on past participants, services offered, costs, and registration.
+                You should communicate in a friendly, professional, and tech-savvy manner, ensuring accessibility and engagement for all users. Always prioritize clarity, accuracy, and user satisfaction.
+                Additionally, you are equipped with tools to escalate user queries when needed, ensuring seamless user support.
 
                 ### General Rules:
                 1. **Scope of Assistance**:
-                - Respond only to questions related to Expotech Panama 2025. If the user asks something outside this scope, politely redirect the conversation. Example:
+                - Respond only to questions related to Expotech Panama. If the user asks something outside this scope, politely redirect the conversation. Example:
                     - **User**: "What are the best restaurants in Panama?"
                     - **Agent**: "I only can assist you with information related to Expotech Panama 2025. How can I help you with that?"
 
                 2. **Tools Available**:
                 - If the user requests to be contacted by a person or if you cannot answer a question, use the `contacto_personal` tool to gather the necessary contact information.                
-                - With retriever_tool search for information specifically about Expotech Panama 2025. For any questions related to the event, exhibitors, schedules, speakers, venues, and more details about Expotech Panama 2025.
+                - With retriever_tool or retriever_azure_search toosl, search for information specifically about Expotech Panama 2025. For any questions related to the event, exhibitors, schedules, speakers, venues, and more details about Expotech Panama 2025.
 
                 4. **Language Consistency**:
                 - Always respond in the same language the user is using.
@@ -255,12 +247,13 @@ sys_msg = """
                
 
                 ### Chain of Thought (CoT) for Tool Usage:
-                1. Evaluate the user's request:
-                - If you cannot answer or the user asks to be contacted, proceed to gather information.
+                1. Evaluate the user's request
+                2. usea available tools to gather information
                 2. Generate a clear, professional summary of the contact reason based on the conversation.
                 3. Use `contacto_personal` when the user indicates they wish to be contacted by a person.
                 """
 
+#   -   -   -   -   -   -   -   -   -   - LLM + TOOLS   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 lm_general = "gpt-4o-mini"
 llm_with_tools = ChatOpenAI(temperature=0, model_name=lm_general).bind_tools(tools)
 
@@ -279,13 +272,21 @@ def assistant(state: expo_state):
     }
 
 
-######################                      AGENTE EXTRACTOR                    ##################################
-# -  PROMPT   |   LLM    |     STROUTPUPARSER
+#
+#
+#
+#
+#
+#
+#
+#
+######################                      AGENTE EXTRACTOR   (prompt + llm + stroutpuparser)                ##################################
 
-# LLM
+#   -   -   -   -   -   -   -   -   -   - LLM   -   -   -   -   -   -   -   -   -   -   -   -
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
-# Prompt
+#   -   -   -   -   -   -   -   -   -   - SYSTEM PROMPT -   -   -   -   -   -   -   -   -   -   -
+
 system = """
 You are an information extraction expert. Your task is to extract company names from the given message.
 
@@ -303,6 +304,8 @@ extraction_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
+#   -   -   -   -   -   -   -   -   -   - LLM + TOOLS   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+
 extraction_agent = extraction_prompt | llm | StrOutputParser()
 
 
@@ -319,9 +322,19 @@ def extractor(state: expo_state):
     }
 
 
-##########################                  Grafo                           ##############################
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+##########################                 G R A F O                           ##############################
 
-# MEMORIA GRAFO
+# - -   -   -   -   -   -   -   -   -   CHECKPOINTER    -   -   -   -   -   -   -   -   -
 memory = MemorySaver()
 
 
