@@ -65,7 +65,7 @@ def chat():
     # Logica fotos respuesta
     empresas = ["visnai_logo.png"]
 
-    return [respuesta_texto, empresas]
+    return [respuesta_texto, None]
 
     # # AGENTE AI
     # # Fecha

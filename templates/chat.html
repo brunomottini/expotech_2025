@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
 		integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="/static/visnstyle2.css">
+	<link rel="stylesheet" type="text/css" href="/static/visnstyle3.css">
 	<!--<link rel="stylesheet" type="text/css" href="https://shr.visnai.com/static/styles/visnstyle2.css" />-->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,15 +32,15 @@
 								<span class="online_icon"></span>
 							</div>
 							<div class="user_info">
-								<span>ExpoTech Panama AI</span>
-								<p>El agente de AI oficial de la ExpoTech Panama 2025!</p>
+								<span>ExpoVisn - ExpoTech 2025</span>
+								<p>by: Dsinergia Corp.</p>
 							</div>
 						</div>
 					</div>
 					<div id="messageFormeight" class="card-body msg_card_body">
 						<!-- Contenedor de mensajes -->
 					</div>
-					<div id="waitingMessage" style="display: none; text-align: center; color: #ffffff;">
+					<div id="waitingMessage" style="display: none; text-align: center; color: #d7d9e3;">
 						<div id="loader"></div> <!-- Agregamos un div para el círculo animado -->
 						<p>Thinking...</p>
 					</div>
@@ -54,7 +54,9 @@
 							</div>
 						</form>
 						<p style="color: #5e5e61; text-align: right; font-size: 12px">
-							Powered by VisnAI<a style="color: #5e5e61; text-decoration: underline;" target="_blank"></a>
+							Powered by <a href="https://visnai.com/" style="color: #5e5e61; text-decoration: underline;"
+								target="_blank" onmouseover="this.style.color='#00AEEF'"
+								onmouseout="this.style.color='#5e5e61'">Visn AI</a>
 						</p>
 					</div>
 				</div>
@@ -80,7 +82,7 @@
 				const str_time = hour + ":" + minute;
 				var rawText = $("#text").val();
 
-				var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' + rawText + '<span class="msg_time_send">' + str_time + '</span></div><div class="img_cont_msg"><img src="./static/user.png" class="rounded-circle user_img_msg"></div></div>';
+				var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' + rawText + '<span class="msg_time_send">' + str_time + '</span></div><div class="img_cont_msg"><img src="./static/user4.png" class="rounded-circle user_img_msg"></div></div>';
 
 				$("#text").val("");
 				$("#messageFormeight").append(userHtml);
@@ -95,7 +97,7 @@
 				}).done(function (data) {
 					// Ocultar mensaje de espera al recibir la respuesta
 					$("#waitingMessage").hide();
-					var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg text-white"><img src="/static/expotech2.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer text-white">' + data[0] + '<span class="msg_time">' + str_time + '</span></div></div>';
+					var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg text-white"><img src="/static/expotech2.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer ">' + data[0] + '<span class="msg_time">' + str_time + '</span></div></div>';
 
 					// 				FOTOS
 					//

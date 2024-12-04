@@ -200,8 +200,8 @@ def contacto_personal(
         conn.close()
 
 
-tools = [retriever_tool, contacto_personal]
-# tools = [retriever_azure_search, contacto_personal]
+# tools = [retriever_tool, contacto_personal]
+tools = [retriever_azure_search, contacto_personal]
 
 
 #
@@ -283,6 +283,7 @@ def assistant(state: expo_state):
 ######################                      AGENTE EXTRACTOR   (prompt + llm + stroutpuparser)                ##################################
 
 #   -   -   -   -   -   -   -   -   -   - LLM   -   -   -   -   -   -   -   -   -   -   -   -
+
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
 #   -   -   -   -   -   -   -   -   -   - SYSTEM PROMPT -   -   -   -   -   -   -   -   -   -   -
