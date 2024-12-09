@@ -46,8 +46,9 @@
 					</div>
 					<div class="card-footer">
 						<form id="messageArea" class="input-group">
-							<input type="text" id="text" name="msg" placeholder="Type your message..."
-								autocomplete="off" class="form-control type_msg" required />
+							<input type="text" id="text" name="msg"
+								placeholder="Type your message / Escriba su mensaje..." autocomplete="off"
+								class="form-control type_msg" required />
 							<div class="input-group-append">
 								<button type="submit" id="send" class="input-group-text send_btn"><i
 										class="fas fa-paper-plane"></i></button>
@@ -69,7 +70,21 @@
 		// ESTA ES UNA FUNCION NUEVA
 		function formatFilename(filename) {
 
-			return filename.replace(/\.jpg$/i, '');
+			return filename.replace(/\.png$/i, '');
+		}
+
+		function processLinksInText(text) {
+			const parser = new DOMParser();
+			const htmlDoc = parser.parseFromString(text, 'text/html');
+			const links = htmlDoc.querySelectorAll('a');
+
+			// Modifica cada enlace para abrir en una nueva pestaña
+			links.forEach((link) => {
+				link.setAttribute('target', '_blank');
+				link.setAttribute('rel', 'noopener noreferrer');
+			});
+
+			return htmlDoc.body.innerHTML;
 		}
 
 		$(document).ready(function () {
@@ -97,6 +112,8 @@
 				}).done(function (data) {
 					// Ocultar mensaje de espera al recibir la respuesta
 					$("#waitingMessage").hide();
+
+
 					var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg text-white"><img src="/static/expotech2.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer ">' + data[0] + '<span class="msg_time">' + str_time + '</span></div></div>';
 
 					// 				FOTOS
@@ -108,14 +125,24 @@
 							let filename = data[1][i];
 							botHtml += '<div class="image-box">';
 							botHtml += '<img src="/static/empresas/' + filename + '" class="bot_image" alt="Bot Image">';
-							botHtml += '<span class="image_filename">' + formatFilename(filename) + '</span>';
+							//botHtml += '<span class="image_filename">' + formatFilename(filename) + '</span>';
 							botHtml += '</div>'; // Closing tag for image-box
 						}
 
 						botHtml += '</div>'; // Closing tag for image-container
 					}
-					//
-					// HASTA AQUI CAMBIE EL CODIGO
+
+					// Agregar los links si existen en la respuesta (data[2])
+					if (data[2] && data[2].length > 0) {
+						botHtml += '<div class="links-container">';
+						for (let i = 0; i < data[2].length; i++) {
+							let link = data[2][i];
+							botHtml += '<div class="link-box">';
+							botHtml += '<a href="' + link + '" target="_blank" class="bot_link">' + link + '</a>';
+							botHtml += '</div>'; // Closing tag for link-box
+						}
+						botHtml += '</div>'; // Closing tag for links-container
+					}
 
 					$("#messageFormeight").append($.parseHTML(botHtml));
 					$("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
@@ -124,6 +151,8 @@
 			});
 		});
 	</script>
+
+
 </body>
 
 </html>

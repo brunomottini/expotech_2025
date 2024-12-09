@@ -13,10 +13,13 @@ from flask import (
     jsonify,
     session,
     url_for,
+    stream_with_context,
+    Response,
 )
 
 import markdown2
 import uuid
+import re
 from agent import create_agent
 from grafo_agente import create_graph
 
@@ -51,21 +54,34 @@ def chat():
     # GRAFO AGENTE
     config = {"configurable": {"thread_id": session_id}}
     grafo = create_graph()
-    answer = grafo.invoke(
+
+    # Respuesta invoke
+    estado_final = grafo.invoke(
         {
             "messages": input,
         },
         config,
     )
-    print(answer)
+    print("Estado final:", estado_final)
 
-    last_answer = answer["messages"][-1].content
+    # Respuesta Texto
+    last_answer = estado_final["messages"][-1].content
     respuesta_texto = markdown2.markdown(last_answer)
 
     # Logica fotos respuesta
-    empresas = ["visnai_logo.png"]
+    empresas_totales = estado_final["empresas"]
+    # Definir una expresión regular que coincida con diferentes variaciones de "visnai"
 
-    return [respuesta_texto, None]
+    if "VisnAI" or "Visn AI" in empresas_totales:
+        empresas = ["visnai_logo.png"]
+    else:
+        empresas = None
+
+    # Logica links
+    links = estado_final["links"]
+    print(links)
+
+    return [respuesta_texto, empresas, links]
 
     # # AGENTE AI
     # # Fecha

@@ -54,6 +54,7 @@ class expo_state(TypedDict):
     session_id: str
     messages: Annotated[list, add_messages]
     empresas: list
+    links: list
 
 
 #######################                    TOOLS                     ##############################
@@ -218,7 +219,7 @@ tools = [retriever_azure_search, contacto_personal]
 #   -   -   -   -   -   -   -   -   -   - SYSTEM PROMPT -   -   -   -   -   -   -   -   -   -   -
 sys_msg = """
                 You are ExpoVisn, a chatbot created by Dsinergia Corp., also known as Dsinergia, to assist with ExpoTech 2025 in Panama City, Panamá.
-                Your primary purpose is to provide information about the expo, including details on past participants, services offered, costs, and registration.
+                Your primary purpose is to provide information about the expo, including details on past participants, services offered, costs, registration and companies participants like Dsinergia.
                 You should communicate in a friendly, professional, and tech-savvy manner, ensuring accessibility and engagement for all users. Always prioritize clarity, accuracy, and user satisfaction.
                 Additionally, you are equipped with tools to escalate user queries when needed, ensuring seamless user support.
 
@@ -289,10 +290,15 @@ llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 #   -   -   -   -   -   -   -   -   -   - SYSTEM PROMPT -   -   -   -   -   -   -   -   -   -   -
 
 system = """
-You are an information extraction expert. Your task is to extract company names from the given message.
+You are an information extraction expert. Your task is to extract company names and web links from the given message.
 
-Please return the company names in a list format, where each company name is a separate element in the list.
-For example: ["Company A", "Company B"]
+Please return a list, where the first element is a list of companys names, and the second list element is a list of webs links.
+Each company name and link must be a separate element in the correspondind list.
+
+For example: [
+    ["Company A", "Company B"],
+    ["www.visnai.com","wwww.example.com"]
+            ]
 """
 
 extraction_prompt = ChatPromptTemplate.from_messages(
@@ -314,13 +320,13 @@ extraction_agent = extraction_prompt | llm | StrOutputParser()
 def extractor(state: expo_state):
     question = state["messages"][-1]
 
-    empresas = extraction_agent.invoke({"question": question})
-    for empresa in literal_eval(empresas):
-        print(empresa)
+    lista_completa = literal_eval(extraction_agent.invoke({"question": question}))
+    empresas = lista_completa[0]
+    links = lista_completa[1]
+    print(empresas)
+    print(links)
 
-    return {
-        "empresas": empresas,
-    }
+    return {"empresas": empresas, "links": links}
 
 
 #

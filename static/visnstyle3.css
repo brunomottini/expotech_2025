@@ -476,3 +476,26 @@ html {
 		/* Rotación completa */
 	}
 }
+
+/* BARRA DE SCROLL*/
+.msg_card_body::-webkit-scrollbar {
+	width: 8px;
+	/* Ancho de la barra */
+}
+
+.msg_card_body::-webkit-scrollbar-track {
+	background: #1a1a1a;
+	/* Color del track */
+}
+
+.msg_card_body::-webkit-scrollbar-thumb {
+	background-color: #3498db;
+	/* Color del scroll */
+	border-radius: 4px;
+	/* Bordes redondeados */
+}
+
+.msg_card_body::-webkit-scrollbar-thumb:hover {
+	background-color: #1d87d1;
+	/* Color del scroll al pasar el mouse */
+}
