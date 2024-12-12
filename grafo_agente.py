@@ -29,18 +29,6 @@ from azure_database import connect_db
 from send_mail import enviar_mail_confirmacion
 from azure_ai_search import create_azure_ai_search_vs
 
-# Comentadas (Pendientes de Revisión o Eliminación)
-# from langgraph.graph import MessagesState
-# from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-# from langchain.tools.render import format_tool_to_openai_function
-
-
-# from langchain_google_community import GmailToolkit
-# from langchain_google_community.gmail.utils import (
-#     build_resource_service,
-#     get_gmail_credentials,
-# )
-
 
 # Varibles de ambiente
 _ = load_dotenv(find_dotenv())

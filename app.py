@@ -27,6 +27,12 @@ from grafo_agente import create_graph
 _ = load_dotenv(find_dotenv())  # read local .env file
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
+# LANGSMITH
+LANGCHAIN_TRACING_V2 = True
+LANGCHAIN_ENDPOINT = "https://api.smith.langchain.com"
+LANGCHAIN_API_KEY = "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"
+LANGCHAIN_PROJECT = "Expotech25"
+
 
 # ---------------------------------------------------------------------    ARQUITECTURA DE LA WEB   ---------------------------------
 
@@ -72,16 +78,18 @@ def chat():
     empresas_totales = estado_final["empresas"]
     # Definir una expresión regular que coincida con diferentes variaciones de "visnai"
 
-    if "VisnAI" or "Visn AI" in empresas_totales:
+    keywords = ["VisnAI", "Visn AI", "Visn ai", "Visnai"]
+    # Verificar si alguno de los elementos de `keywords` está en `total_empresas`
+    if any(keyword in empresas_totales for keyword in keywords):
         empresas = ["visnai_logo.png"]
     else:
         empresas = None
 
     # Logica links
     links = estado_final["links"]
-    print(links)
+    # print(links)
 
-    return [respuesta_texto, empresas, links]
+    return [respuesta_texto, empresas, None]
 
     # # AGENTE AI
     # # Fecha
