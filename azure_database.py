@@ -1,6 +1,7 @@
 import pyodbc
 import os
 from dotenv import load_dotenv
+import pandas as pd
 
 load_dotenv()
 
@@ -24,29 +25,53 @@ def connect_db():
         return None
 
 
-# Crear tabla QUIERO_ME_CONTACTEN
-def create_table_expo25_contacto_persona():
+def load_table_to_dataframe(table_name):
+    """
+    Carga los datos de una tabla desde la base de datos y los devuelve como un DataFrame de pandas.
+
+    Args:
+        table_name (str): El nombre de la tabla a consultar.
+
+    Returns:
+        pd.DataFrame | None: Un DataFrame con los datos de la tabla,
+        o None si ocurre un error.
+    """
+    # Conectar a la base de datos
+    conn = connect_db()
+    if conn is None:
+        print(
+            "No se pudo establecer conexión con la base de datos para cargar la tabla."
+        )
+        return None
+
     try:
-        with connect_db() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    CREATE TABLE expo25_contacto_persona (
-                        id_contacto INT IDENTITY(1,1) PRIMARY KEY,      -- Identificador único del contacto
-                        fecha_registro DATETIME DEFAULT GETDATE(),      -- Fecha de registro, valor por defecto la fecha actual
-                        nombre_contacto NVARCHAR(100) NOT NULL,         -- Nombre de la persona a contactar
-                        nombre_empresa NVARCHAR(100) NULL,             -- Nombre de la empresa (opcional)
-                        mail_contacto NVARCHAR(150) NOT NULL,           -- Correo electrónico de contacto
-                        numero_contacto NVARCHAR(15) NOT NULL,          -- Número de teléfono de contacto                        
-                        motivo_contacto NVARCHAR(MAX) NOT NULL          -- Descripción del motivo de contacto
-                    )
-                    """
-                )
-                conn.commit()
-                print("Tabla 'expo25_contacto_persona' creada exitosamente.")
-    except pyodbc.Error as e:
-        print(f"Error al crear la tabla 'expo25_contacto_persona': {e}")
+        cursor = conn.cursor()
 
+        # Crear consulta SQL para seleccionar toda la tabla
+        query = f"SELECT * FROM {table_name}"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        columns = [column[0] for column in cursor.description]
 
-# # Crear todas las tablas
-# create_table_expo25_contacto_persona()
+        # Debugging: verificar datos recuperados
+        print("Rows:", rows)
+        print("Columns:", columns)
+
+        # Limpiar los datos para manejar valores vacíos
+        cleaned_rows = [
+            tuple(value if value != "" else None for value in row) for row in rows
+        ]
+
+        # Convertir las filas en un DataFrame de pandas
+        df = pd.DataFrame(cleaned_rows, columns=columns)
+        print("Datos cargados exitosamente desde la tabla.")
+
+        return df
+
+    except Exception as e:
+        print(f"Error al cargar los datos de la tabla '{table_name}': {e}")
+        return None
+
+    finally:
+        if conn:
+            conn.close()

@@ -189,8 +189,45 @@ def contacto_personal(
         conn.close()
 
 
+@tool
+def obtener_espacios() -> str:
+    """
+    Use this tool to retrieve information about spaces, stands, and cabins at Expotech.
+    The information retrieved by this tool must be used to generate a natural language response.
+    Do not provide the information in raw format. Instead, craft a clear and concise message based on the data.
+    """
+
+    # Conectar a la base de datos
+    conn = connect_db()
+    if conn is None:
+        return "Error al conectar a la base de datos."
+
+    try:
+        cursor = conn.cursor()
+
+        # Leer los datos de la tabla expo25_espacios
+        query = """
+        SELECT id_espacio, ocupado, id_empresa, nombre_empresa
+        FROM expo25_espacios
+        """
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        columns = [column[0] for column in cursor.description]
+
+        # Convertir a formato JSON
+        data = [dict(zip(columns, row)) for row in rows]
+        return data
+
+    except Exception as e:
+        return f"Error al consultar la base de datos: {e}"
+
+    finally:
+        if conn:
+            conn.close()
+
+
 # tools = [retriever_tool, contacto_personal]
-tools = [retriever_azure_search, contacto_personal]
+tools = [retriever_azure_search, contacto_personal, obtener_espacios]
 
 
 #
