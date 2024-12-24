@@ -52,7 +52,7 @@ class expo_state(TypedDict):
 
 
 @tool("retriever_azure_search", return_direct=True)
-def retriever_azure_search(query: str, k: int = 4, score_threshold: float = 0.8):
+def retriever_azure_search(query: str, k: int = 3, score_threshold: float = 0.80):
     """
     Search for information specifically about Expotech Panama 2025. For any questions related to the event, exhibitors, schedules, speakers, venues, or any details about Expotech Panama 2025, you must use this tool.
     """
@@ -207,7 +207,7 @@ def obtener_espacios() -> str:
 
         # Leer los datos de la tabla expo25_espacios
         query = """
-        SELECT id_espacio, ocupado, id_empresa, nombre_empresa
+        SELECT id_espacio, ocupado, nombre_empresa
         FROM expo25_espacios
         """
         cursor.execute(query)

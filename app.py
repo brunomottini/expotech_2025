@@ -64,14 +64,69 @@ def log_in():
         return redirect("/")
 
 
+@app.route("/leads", methods=["GET"])
+def leads():
+    # Cargar datos de la tabla
+    df_contactos = load_table_to_dataframe("expo25_contacto_persona")
+    if df_contactos is None or df_contactos.empty:
+        leads_lista = []
+    else:
+        # Obtener los parámetros de filtrado
+        fecha_registro = request.args.get("fecha_solicitud")
+        print(fecha_registro)
+        if fecha_registro:
+            fecha_registro = pd.to_datetime(fecha_registro).date()
+        nombre = request.args.get("nombre")
+        empresa = request.args.get("empresa")
+
+        # Convertir la columna de fechas para que sólo contenga año, mes y día
+        if "fecha_registro" in df_contactos.columns:
+            df_contactos["fecha_registro"] = pd.to_datetime(
+                df_contactos["fecha_registro"]
+            ).dt.date
+
+        # Aplicar filtros si los parámetros existen
+        if fecha_registro:
+            df_contactos = df_contactos[
+                df_contactos["fecha_registro"] == fecha_registro
+            ]
+        if nombre:
+            df_contactos = df_contactos[
+                df_contactos["nombre_contacto"].str.contains(
+                    nombre, case=False, na=False
+                )
+            ]
+        if empresa:
+            df_contactos = df_contactos[
+                df_contactos["nombre_empresa"].str.contains(
+                    empresa, case=False, na=False
+                )
+            ]
+
+        # Ordenar los datos por fecha_registro en orden descendente (más reciente primero)
+        if "fecha_registro" in df_contactos.columns:
+            df_contactos = df_contactos.sort_values(
+                by="fecha_registro", ascending=False
+            )
+
+        # Convertir los datos a lista
+        leads_lista = df_contactos.values.tolist()
+
+    # Obtener el parámetro 'success' del request
+    success = request.args.get("success", None)
+
+    # Renderizar la plantilla HTML y pasar los datos de usuarios al frontend
+    return render_template("leads.html", leads=leads_lista, success=success)
+
+
 @app.route("/home")
 def home():
 
     df_espacios = load_table_to_dataframe("expo25_espacios")
     if df_espacios is None or df_espacios.empty:
-        print("Tabla de espacios vacia")
         espacios_lista = []
     else:
+
         espacios_lista = df_espacios.values.tolist()
 
     # Obtener el parámetro 'success' del request
@@ -84,11 +139,9 @@ def home():
 @app.route("/agregar_espacio", methods=["POST"])
 def agregar_espacio():
     # Obtener datos del formulario
-    print("Se recivio mensaje del front")
-
     id_espacio = request.form.get("id_espacio")
     id_ocupado = request.form.get("id_ocupado", None)
-    id_empresa = request.form.get("id_empresa", None)
+    # id_empresa = request.form.get("id_empresa", None)
     nombre_empresa = request.form.get("nombre_empresa", None)
 
     try:
@@ -106,17 +159,16 @@ def agregar_espacio():
             # Actualizar los campos si se proporcionaron
             query = """
             UPDATE expo25_espacios
-            SET ocupado = COALESCE(?, ocupado),
-                id_empresa = COALESCE(?, id_empresa),
+            SET ocupado = COALESCE(?, ocupado),                
                 nombre_empresa = COALESCE(?, nombre_empresa)
             WHERE id_espacio = ?
             """
-            cursor.execute(query, (id_ocupado, id_empresa, nombre_empresa, id_espacio))
+            cursor.execute(query, (id_ocupado, nombre_empresa, id_espacio))
         else:
             # Insertar nuevo registro con valores por defecto si faltan campos
             query = """
-            INSERT INTO expo25_espacios (id_espacio, ocupado, id_empresa, nombre_empresa)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO expo25_espacios (id_espacio, ocupado, nombre_empresa)
+            VALUES (?, ?, ?)
             """
             cursor.execute(
                 query,
@@ -125,7 +177,6 @@ def agregar_espacio():
                     (
                         id_ocupado if id_ocupado else "No"
                     ),  # Valor por defecto para ocupado
-                    id_empresa,  # Puede ser NULL
                     nombre_empresa,  # Puede ser NULL
                 ),
             )

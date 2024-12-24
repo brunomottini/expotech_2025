@@ -13,18 +13,14 @@
     <style>
         body {
             background-color: #ffffff;
-            /* Fondo negro */
             color: #ffffff;
-            /* Texto blanco para contraste */
         }
 
-        /* Clase personalizada para el separador de la tabla */
         .table-separator {
             border-bottom: 2px solid #8ecce7;
         }
     </style>
 </head>
-
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-nav-scroll" style="background-color: #1a2c5b;">
@@ -36,7 +32,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-white active" aria-current="page" href="/home">Home</a>
+                        <a class="nav-link text-white active" aria-current="page" href="/home">Stands</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/leads">Leads</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white" href="/chat">Chat Interno</a>
@@ -46,8 +45,6 @@
         </div>
     </nav>
 
-
-    <!-- Logo -->
     <div class="container my-4">
         <div class="row">
             <div class="col-md-12 text-start">
@@ -56,34 +53,30 @@
         </div>
     </div>
 
-
-
     <div class="container my-5">
-
-        <!-- Mostrar mensaje de éxito -->
         {% if success == 'True' %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>¡Éxito!</strong> Informacion actualizada de forma exitosa.
+        <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
+            <strong>¡Éxito!</strong> Información actualizada de forma exitosa.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% elif success == 'False' %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Error!</strong> No se pudo actualizar la información.
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" id="error-alert">
+            <strong>¡Error!</strong> No se pudo actualizar la información.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endif %}
 
-
-
         <div class="row">
-            <!-- Columna izquierda: Formulario -->
             <div class="col-md-3">
                 <div class="card mb-4 shadow">
                     <div class="card-body">
-                        <form action="/agregar_espacio" method="post">
+                        <form action="/agregar_espacio" method="post" onsubmit="return validarFormulario()">
                             <div class="mb-3">
                                 <label for="id_espacio" class="form-label">ID Espacio</label>
                                 <input type="number" class="form-control" id="id_espacio" name="id_espacio" required>
+                                <div id="id_espacio_error" class="text-danger" style="display: none;">
+                                    El ID del espacio debe estar entre 4001 y 4042.
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="id_ocupado" class="form-label">Ocupado</label>
@@ -93,22 +86,19 @@
                                     <option value="No">No</option>
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="id_empresa" class="form-label">ID Empresa / RUT</label>
-                                <input type="text" class="form-control" id="id_empresa" name="id_empresa">
-                            </div>
+
                             <div class="mb-3">
                                 <label for="nombre_empresa" class="form-label">Nombre Empresa</label>
                                 <input type="text" class="form-control" id="nombre_empresa" name="nombre_empresa">
                             </div>
 
-                            <button type="submit" class="btn btn-primary w-100"
-                                style="background-color: #5332ac;">Modificar</button>
+                            <button type="submit" class="btn btn-primary w-100" style="background-color: #5332ac;">
+                                Agregar / Modificar
+                            </button>
                         </form>
                     </div>
                 </div>
             </div>
-            <!-- Columna derecha: Tabla de Usuarios -->
             <div class="col-md-9">
                 <div class="table-responsive">
                     <table class="table table-hover">
@@ -116,7 +106,6 @@
                             <tr>
                                 <th scope="col">ID Espacio</th>
                                 <th scope="col">Ocupado</th>
-                                <th scope="col">ID Empresa / RUT</th>
                                 <th scope="col">Nombre Empresa</th>
                             </tr>
                         </thead>
@@ -126,7 +115,6 @@
                                 <td>{{ espacio[0] }}</td>
                                 <td>{{ espacio[1] }}</td>
                                 <td>{{ espacio[2] }}</td>
-                                <td>{{ espacio[3] }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -135,6 +123,37 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // FUNCION QUE CONTROLA INFORMACION DE ID_ESPACIO
+        function validarFormulario() {
+            const idEspacio = document.getElementById('id_espacio').value;
+            const idEspacioError = document.getElementById('id_espacio_error');
+
+            // Validar rango de ID Espacio
+            if (idEspacio < 4001 || idEspacio > 4042) {
+                idEspacioError.style.display = 'block';
+                return false;
+            }
+
+            idEspacioError.style.display = 'none';
+            return true;
+        }
+
+        // AUTO CLOSE ALERTS
+        document.addEventListener('DOMContentLoaded', () => {
+            const successAlert = document.getElementById('success-alert');
+            const errorAlert = document.getElementById('error-alert');
+
+            if (successAlert) {
+                setTimeout(() => successAlert.classList.remove('show'), 1000);
+            }
+
+            if (errorAlert) {
+                setTimeout(() => errorAlert.classList.remove('show'), 1000);
+            }
+        });
+    </script>
 </body>
 
 </html>
